@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  backend:
+    image: productshop-backend
+    container_name: productshop-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/shop.db
+    volumes:
+      # папка для файла SQLite — иначе данные пропадут при пересоздании контейнера
+      - sqlite_data:/app/data
+    ports:
+      - "5000:80"
+    restart: unless-stopped
+
+  frontend:
+    image: productshop-frontend
+    container_name: productshop-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  sqlite_data:
